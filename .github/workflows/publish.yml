@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/project/email-verify/
+      url: https://pypi.org/project/mg-email-verify/
 
     steps:
       - uses: actions/checkout@v4
@@ -43,12 +43,12 @@ jobs:
       - name: Verify wheel installs
         run: |
           uv tool install dist/*.whl
-          email-verify --version
+          mg-email-verify --version
 
       - name: Publish to PyPI (Trusted Publishing / OIDC)
         uses: pypa/gh-action-pypi-publish@release/v1
         # No API token needed — uses OIDC trusted publishing.
-        # Configure at: https://pypi.org/manage/project/email-verify/settings/publishing/
+        # Configure at: https://pypi.org/manage/project/mg-email-verify/settings/publishing/
         # Set:  Owner=craigderington  Repo=email-verify  Workflow=publish.yml  Env=pypi
 
       - name: Create GitHub Release
@@ -60,7 +60,7 @@ jobs:
             ## Install
 
             ```bash
-            uv tool install email-verify==${{ github.ref_name }}
+            uv tool install mg-email-verify==${{ github.ref_name }}
             ```
 
             ## What's Changed
