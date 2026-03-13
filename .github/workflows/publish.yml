@@ -29,13 +29,13 @@ jobs:
 
       - name: Validate tag matches pyproject.toml version
         run: |
-          TAG="${GITHUB_REF_NAME#v}"
-          TOML_VER=$(uv run python -c "import tomllib; d=tomllib.load(open('pyproject.toml','rb')); print(d['project']['version'])")
-          if [ "$TAG" != "$TOML_VER" ]; then
-            echo "❌ Tag $TAG does not match pyproject.toml version $TOML_VER"
-            exit 1
-          fi
-          echo "✓ Version $TAG matches pyproject.toml"
+         TAG="${GITHUB_REF_NAME#v}"
+         TOML_VER=$(grep '^version' pyproject.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
+         if [ "$TAG" != "$TOML_VER" ]; then
+           echo "❌ Tag $TAG does not match pyproject.toml version $TOML_VER"
+           exit 1
+         fi
+         echo "✓ Version $TAG matches pyproject.toml"
 
       - name: Build wheel + sdist
         run: uv build
