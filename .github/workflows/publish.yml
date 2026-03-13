@@ -43,7 +43,7 @@ jobs:
       - name: Verify wheel installs
         run: |
           uv tool install dist/*.whl
-          mg-email-verify --version
+          uv tool run email-verify --version
 
       - name: Publish to PyPI (Trusted Publishing / OIDC)
         uses: pypa/gh-action-pypi-publish@release/v1
