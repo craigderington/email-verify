@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mg-email-verify"
-version = "0.2.3-1"
+version = "0.2.4"
 description = "Email intelligence & SMTP verification CLI — DNS, Mailgun validation, GeoIP, ASN, risk scoring"
 readme = "README.md"
 license = { text = "MIT" }
