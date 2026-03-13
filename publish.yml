@@ -1,0 +1,70 @@
+name: Publish to PyPI
+
+on:
+  push:
+    tags:
+      - "v*.*.*"   # triggers on v0.1.0, v1.2.3, etc.
+
+permissions:
+  contents: write   # needed to create GitHub Release
+  id-token: write   # needed for PyPI trusted publishing (OIDC)
+
+jobs:
+  build-and-publish:
+    name: Build & Publish
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/email-verify/
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history for changelog generation
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Validate tag matches pyproject.toml version
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          TOML_VER=$(uv run python -c "import tomllib; d=tomllib.load(open('pyproject.toml','rb')); print(d['project']['version'])")
+          if [ "$TAG" != "$TOML_VER" ]; then
+            echo "❌ Tag $TAG does not match pyproject.toml version $TOML_VER"
+            exit 1
+          fi
+          echo "✓ Version $TAG matches pyproject.toml"
+
+      - name: Build wheel + sdist
+        run: uv build
+
+      - name: Verify wheel installs
+        run: |
+          uv tool install dist/*.whl
+          email-verify --version
+
+      - name: Publish to PyPI (Trusted Publishing / OIDC)
+        uses: pypa/gh-action-pypi-publish@release/v1
+        # No API token needed — uses OIDC trusted publishing.
+        # Configure at: https://pypi.org/manage/project/email-verify/settings/publishing/
+        # Set:  Owner=craigderington  Repo=email-verify  Workflow=publish.yml  Env=pypi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: "email-verify ${{ github.ref_name }}"
+          body: |
+            ## Install
+
+            ```bash
+            uv tool install email-verify==${{ github.ref_name }}
+            ```
+
+            ## What's Changed
+            See [CHANGELOG.md](https://github.com/craigderington/email-verify/blob/main/CHANGELOG.md) for full details.
+          files: dist/*
+          draft: false
+          prerelease: ${{ contains(github.ref_name, 'a') || contains(github.ref_name, 'b') || contains(github.ref_name, 'rc') }}
