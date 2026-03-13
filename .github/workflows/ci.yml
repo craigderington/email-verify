@@ -63,7 +63,7 @@ jobs:
       - name: Verify wheel installs and CLI works
         run: |
           uv tool install dist/*.whl
-          uv tool run email-verify --version
+          uv tool run --from mg0email-verify email-verify --version
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
